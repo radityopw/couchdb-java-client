@@ -1,0 +1,93 @@
+<project name="couchdb-java-client" default="all" basedir=".">
+
+  <property file="build.properties"/>
+  <property file="${user.home}/build.properties"/>
+
+  <property name="app.name" value="couchdb-java-client"/>
+  <property name="app.path" value="/${app.name}"/>
+  <property name="app.version" value="0.1"/>
+  <property name="build.home" value="${basedir}/build"/>
+  <property name="src.home" value="${basedir}/src"/>
+  <property name="dist.home" value="${basedir}/dist"/>
+  <property name="lib.home" value="${basedir}/lib"/>
+
+
+  <path id="compile.classpath">
+	
+	<fileset dir="${lib.home}">
+      <include name="*.jar"/>
+    </fileset>
+
+  </path>
+
+
+
+  <taskdef resource="org/apache/catalina/ant/catalina.tasks"
+           classpathref="compile.classpath"/>
+
+  <property name="compile.debug"       value="true"/>
+  <property name="compile.deprecation" value="true"/>
+
+
+
+  <target name="all" depends="clean,compile,dist"
+   description="Clean build and dist directories, then compile and dist"/>
+
+
+
+  <target name="clean"
+   description="Delete old build and dist directories">
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
+  </target>
+
+
+
+
+  <target name="compile" depends="clean"
+   description="Compile Java sources">
+   
+	
+
+    <!-- Compile Java classes as necessary -->
+    <mkdir    dir="${build.home}"/>
+    <javac srcdir="${src.home}"
+          destdir="${build.home}"
+            debug="${compile.debug}"
+      deprecation="${compile.deprecation}">
+        <classpath refid="compile.classpath"/>
+    </javac>
+	
+	<copy  todir="${build.home}">
+      <fileset dir="${src.home}" excludes="**/*.java"/>
+    </copy>
+	
+
+  </target>
+
+
+
+  <target name="dist" depends="compile,javadoc"
+   description="Create binary distribution">	
+	
+    <jar jarfile="${dist.home}/${app.name}-${app.version}.jar"
+         basedir="${build.home}"/>
+
+  </target>
+
+  <target name="javadoc" depends="compile"
+   description="Create Javadoc API documentation">
+
+    <mkdir          dir="${dist.home}/docs/api"/>
+    <javadoc sourcepath="${src.home}"
+                destdir="${dist.home}/docs/api"
+           packagenames="*">
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+
+  </target>
+
+
+
+
+</project>
