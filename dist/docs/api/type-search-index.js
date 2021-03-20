@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"radityopw.couchdbclient","l":"CouchdbClient"},{"p":"radityopw.couchdbclient","l":"CouchdbClientConfig"}];updateSearchResults();
