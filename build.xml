@@ -81,7 +81,8 @@
     <mkdir          dir="${dist.home}/docs/api"/>
     <javadoc sourcepath="${src.home}"
                 destdir="${dist.home}/docs/api"
-           packagenames="*">
+           packagenames="*"
+		         access="private">
       <classpath refid="compile.classpath"/>
     </javadoc>
 

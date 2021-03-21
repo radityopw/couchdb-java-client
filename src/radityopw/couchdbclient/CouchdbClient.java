@@ -13,6 +13,7 @@ public class CouchdbClient{
 	private final String urlDatabase;
 	private final String cmdTemplateServer;
 	private final String cmdTemplateDatabase;
+	private final String OS = System.getProperty("os.name").toLowerCase();
 	
 	public CouchdbClient(CouchdbClientConfig config){
 		this.config = config;
@@ -20,10 +21,35 @@ public class CouchdbClient{
 		this.urlServer = config.getProtocol()+"://"+config.getUsername()+":"+config.getPassword()+"@"+config.getHost()+":"+config.getPort();
 		this.urlDatabase = urlServer+"/"+config.getDatabase();
 		
-		this.cmdTemplateServer = config.getCurl()+" -X {MODE} \""+urlServer+"/{OPERATION}\"";
-		this.cmdTemplateDatabase = config.getCurl()+" -X {MODE} \""+urlDatabase+"/{OPERATION}\" {OPTIONAL}";
+		
+		if(this.isWindows()){
+			this.cmdTemplateServer = config.getCurl()+" -X {MODE} \""+urlServer+"/{OPERATION}\"";
+			this.cmdTemplateDatabase = config.getCurl()+" -X {MODE} \""+urlDatabase+"/{OPERATION}\" {OPTIONAL}";
+		}else{
+			this.cmdTemplateServer = config.getCurl()+" -X {MODE} '"+urlServer+"/{OPERATION}'";
+			this.cmdTemplateDatabase = config.getCurl()+" -X {MODE} '"+urlDatabase+"/{OPERATION}' {OPTIONAL}";
+		}
+		
 		LOGGER.log( Level.INFO, "CouchdbClient Created", this );
 	}
+	
+	private boolean isWindows() {
+        return (OS.indexOf("win") >= 0);
+    }
+
+    private boolean isMac() {
+        return (OS.indexOf("mac") >= 0);
+    }
+
+    private boolean isUnix() {
+        return (OS.indexOf("nix") >= 0
+                || OS.indexOf("nux") >= 0
+                || OS.indexOf("aix") > 0);
+    }
+
+    private boolean isSolaris() {
+        return (OS.indexOf("sunos") >= 0);
+    }
 	
 	private String generateServerCommand(String mode,String operation){
 		String cmd = cmdTemplateServer.replace("{MODE}",mode);
@@ -53,6 +79,23 @@ public class CouchdbClient{
 		while((str = reader.readLine())!= null){
 			sb.append(str);
 		}
+		
+		boolean isError = false;
+		StringBuffer sbErr = new StringBuffer();
+		InputStream errorStream = process.getErrorStream();
+		InputStreamReader isReaderErr = new InputStreamReader(errorStream);
+		BufferedReader readerError = new BufferedReader(isReaderErr);
+		while((str = readerError.readLine())!= null){
+			isError = true;
+			sbErr.append(str);
+		}
+		
+		if(isError){
+			LOGGER.log( Level.SEVERE, sbErr.toString());
+			LOGGER.log( Level.SEVERE, sb.toString());
+			throw new Exception(sbErr.toString());
+		}
+		
 		
 		//int exitCode = process.exitValue();
 		//System.out.println("exit value = "+exitCode);
