@@ -91,7 +91,7 @@
     <javadoc sourcepath="${src.home}"
                 destdir="${doc.home}"
            packagenames="*"
-		         access="private">
+		         access="public">
       <classpath refid="compile.classpath"/>
     </javadoc>
 
