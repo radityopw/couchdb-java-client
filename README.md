@@ -7,7 +7,7 @@ couchdb java client menggunakan java [wrapper](https://en.wikipedia.org/wiki/Wra
 1. [curl](https://curl.se/download.html) 
 1. [JSON-Java](https://github.com/stleary/JSON-java) diletakkan didalam folder lib (sudah include)
 1. [Apache Couchdb](https://couchdb.apache.org/)
-1. [Project Lombok](https://projectlombok.org/)
+1. [Project Lombok](https://projectlombok.org/) diletakkan didalam folder lib (sudah include)
 
 ## konfigurasi 
 1. pastikan curl telah diset pada environment variable
