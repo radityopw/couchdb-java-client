@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"radityopw.couchdbclient","l":"CouchdbClient"},{"p":"radityopw.couchdbclient","l":"CouchdbClientConfig"},{"p":"radityopw.couchdbclient","l":"CouchdbClientResponse"}];updateSearchResults();
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"radityopw.couchdbclient","l":"CouchdbClient"},{"p":"radityopw.couchdbclient","l":"CouchdbClientConfig"},{"p":"radityopw.couchdbclient","l":"CouchdbClientResponse"},{"p":"test","l":"Test"}];updateSearchResults();

@@ -1,4 +1,4 @@
 @echo off
 cd ..\build
-java -cp ".;..\lib\json-java.jar" radityopw.couchdbclient.CouchdbClient
+java -cp ".;..\lib\json-java.jar" test.Test
 cd ..\test

@@ -15,6 +15,20 @@ public class CouchdbClient{
 	private final String cmdTemplateDatabase;
 	private final String OS = System.getProperty("os.name").toLowerCase();
 	
+	/**
+	*
+	*menginisiasi couchdbclient 
+	*@param config CouchdbClientConfig merupakan POJO class yang berisi attribut
+	*String curl
+	*String protocol
+	*String host
+	*String port
+	*String database
+	*String username
+	*String password
+	*untuk mengakses attribut tersebut, dapat menggunakan setter dan getter
+	*/
+	
 	public CouchdbClient(CouchdbClientConfig config){
 		this.config = config;
 				
@@ -23,11 +37,11 @@ public class CouchdbClient{
 		
 		
 		if(this.isWindows()){
-			this.cmdTemplateServer = config.getCurl()+" -X {MODE} \""+urlServer+"/{OPERATION}\"";
-			this.cmdTemplateDatabase = config.getCurl()+" -X {MODE} \""+urlDatabase+"/{OPERATION}\" {OPTIONAL}";
+			this.cmdTemplateServer = config.getCurl()+" -S -s -X {MODE} \""+urlServer+"/{OPERATION}\"";
+			this.cmdTemplateDatabase = config.getCurl()+" -S -s -X {MODE} \""+urlDatabase+"/{OPERATION}\" {OPTIONAL}";
 		}else{
-			this.cmdTemplateServer = config.getCurl()+" -X {MODE} '"+urlServer+"/{OPERATION}'";
-			this.cmdTemplateDatabase = config.getCurl()+" -X {MODE} '"+urlDatabase+"/{OPERATION}' {OPTIONAL}";
+			this.cmdTemplateServer = config.getCurl()+" -S -s -X {MODE} '"+urlServer+"/{OPERATION}'";
+			this.cmdTemplateDatabase = config.getCurl()+" -S -s -X {MODE} '"+urlDatabase+"/{OPERATION}' {OPTIONAL}";
 		}
 		
 		LOGGER.log( Level.INFO, "CouchdbClient Created", this );
@@ -66,7 +80,7 @@ public class CouchdbClient{
 		return cmd;
 	}
 	
-	public JSONObject doCommand(String command) throws Exception{
+	private JSONObject doCommand(String command) throws Exception{
 		LOGGER.log( Level.INFO, "Running Command "+command);
 		Process process = Runtime.getRuntime().exec(command);
 		InputStream inputStream = process.getInputStream();
@@ -79,6 +93,8 @@ public class CouchdbClient{
 		while((str = reader.readLine())!= null){
 			sb.append(str);
 		}
+		
+		str = null;
 		
 		boolean isError = false;
 		StringBuffer sbErr = new StringBuffer();
@@ -96,15 +112,19 @@ public class CouchdbClient{
 			throw new Exception(sbErr.toString());
 		}
 		
-		
-		//int exitCode = process.exitValue();
-		//System.out.println("exit value = "+exitCode);
 		process.destroy();
 		
 		String cmd = sb.toString();
 		
 		return new JSONObject(cmd);
 	}
+	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan _all_docs
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/json-structure.html#all-database-documents">All Database Document</a>
+	*/
 	
 	public JSONObject allDocs() throws Exception{
 		
@@ -113,19 +133,57 @@ public class CouchdbClient{
 		return response;
 	}
 	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan _all_docs
+	*@param param , contoh parameter "include_docs=true"
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/json-structure.html#all-database-documents">All Database Document</a>
+	*/
+	
 	public JSONObject allDocs(String param) throws Exception{
 		String command = generateDatabaseCommand("GET","_all_docs?"+param);
 		return this.doCommand(command);
 	}
 	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan _all_docs
+	*dari sebuah partisi data
+	*@param name dari partisi tersebut
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/partitioned-dbs/index.html">partition document</a>
+	*/
+	
 	public JSONObject partition(String name) throws Exception{
 		return this.partition(name,"include_docs=true");
 	}
+	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan _all_docs
+	*dari sebuah partisi data
+	*@param name dari partisi tersebut
+	*@param param, contoh param
+	tambahan "include_docs=true"
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/partitioned-dbs/index.html">partition document</a>
+	*/
 	
 	public JSONObject partition(String name,String param)throws Exception{
 		String command = generateDatabaseCommand("GET","_partition/"+name+"/_all_docs?"+param);
 		return this.doCommand(command);
 	}
+	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan 
+	*dari proses UpSert (Update Insert) document 
+	*@param docId , jika dia menggunakan partisi pastikan key partisi ada di docId contoh "user:admin" dengan partisi user dan key admin 
+	*@param doc, dokumen JSON yang dibagung menggunakan JSONObject
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/api/basics.html#api-basics">API Basic</a>
+	*/
 	
 	public JSONObject setDoc(String docId,JSONObject doc) throws Exception{
 		File file = File.createTempFile("couchdb_java_client",null);
@@ -145,6 +203,15 @@ public class CouchdbClient{
 		return result;
 	}
 	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan 
+	*dari proses penghapusan document 
+	*@param docId , jika dia menggunakan partisi pastikan key partisi ada di docId contoh "user:admin" dengan partisi user dan key admin 
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/api/basics.html#api-basics">API Basic</a>
+	*/
+	
 	public JSONObject delDoc(String docId) throws Exception{
 		JSONObject doc = this.getDoc(docId);
 		String rev = doc.getString("_rev");
@@ -154,58 +221,17 @@ public class CouchdbClient{
 		return doCommand(command);
 	}
 	
+	/**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan 
+	*dari proses pengambilan 1  document 
+	*@param docId , jika dia menggunakan partisi pastikan key partisi ada di docId contoh "user:admin" dengan partisi user dan key admin 
+	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/api/basics.html#api-basics">API Basic</a>
+	*/
+	
 	public JSONObject getDoc(String docId) throws Exception{
 		String command = generateDatabaseCommand("GET","/"+docId);
 		return doCommand(command);
 	}
-	
-	
-	public static void main(String[] a){
-		
-		try{
-			
-			Logger log = Logger.getLogger( CouchdbClient.class.getName() );
-			ConsoleHandler handler = new ConsoleHandler();
-			handler.setFormatter(new SimpleFormatter());
-			handler.setLevel(Level.ALL);
-			log.addHandler(handler);
-			
-			CouchdbClientConfig config = new CouchdbClientConfig();
-			config.setDatabase("shared");
-					
-		
-			CouchdbClient client = new CouchdbClient(config);
-			
-			System.out.println("semua data : ");
-			
-			JSONObject data = client.allDocs();
-			
-			System.out.println(data);
-			
-			System.out.println("memasukkan data : ");
-			
-			JSONObject docAdmin = client.getDoc("user:admin");
-			System.out.println(docAdmin);
-			
-			JSONObject doc1 = new JSONObject("{\"_id\":\"user:coba\",\"username\":\"admin\",\"password\":\"0192023a7bbd73250516f069df18b500\",\"role\":\"admin\"}");
-			System.out.println(doc1);
-			
-			JSONObject result1 = client.setDoc("user:coba",doc1);
-			System.out.println(result1);
-			
-			System.out.println("melihat partisi");
-			JSONObject resultPartition1 = client.partition("user");
-			System.out.println(resultPartition1);
-			
-			System.out.println("menghapus data : ");
-			
-			JSONObject result2 = client.delDoc("user:coba");
-			System.out.println(result2);
-			
-		}catch(Exception e){
-			System.out.println(e);
-		}
-	}
-	
-
 }

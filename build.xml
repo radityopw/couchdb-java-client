@@ -83,7 +83,7 @@
     <javadoc sourcepath="${src.home}"
                 destdir="${dist.home}/docs/api"
            packagenames="*"
-		         access="private">
+		         access="public">
       <classpath refid="compile.classpath"/>
     </javadoc>
 	
