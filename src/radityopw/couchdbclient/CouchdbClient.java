@@ -74,6 +74,11 @@ public class CouchdbClient{
 		return generateDatabaseCommand(mode,operation,"");
 	}
 	private String generateDatabaseCommand(String mode,String operation,String optional){
+		
+		if(isWindows()){
+			operation = operation.replace("\"","\\\"");
+			optional = optional.replace("\"","\\\"");
+		}
 		String cmd = cmdTemplateDatabase.replace("{MODE}",mode);
 		cmd = cmd.replace("{OPERATION}",operation);
 		cmd = cmd.replace("{OPTIONAL}",optional);
