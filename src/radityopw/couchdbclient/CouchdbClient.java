@@ -230,7 +230,7 @@ public class CouchdbClient{
 	*mengembalikan JSONObject dari dokumen yang dihasilkan 
 	*dari proses pengambilan 1  document 
 	*@param docId , jika dia menggunakan partisi pastikan key partisi ada di docId contoh "user:admin" dengan partisi user dan key admin 
-	*@return JSONObject yang merupakan dokumen json dari _all_docs
+	*@return JSONObject yang merupakan dokumen json 
 	*@throws Exception untuk semua error yang terjadi
 	*@see <a href="https://docs.couchdb.org/en/stable/api/basics.html#api-basics">API Basic</a>
 	*/
