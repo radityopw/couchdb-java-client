@@ -202,7 +202,7 @@ public class CouchdbClient{
 		bos.close();
 		fos.close();
 		
-		String command = generateDatabaseCommand("PUT","/"+docId," -d @"+file.getAbsolutePath());
+		String command = generateDatabaseCommand("PUT",docId," -d @"+file.getAbsolutePath());
 		JSONObject result = doCommand(command);
 		file.delete();
 		return result;
@@ -221,7 +221,7 @@ public class CouchdbClient{
 		JSONObject doc = this.getDoc(docId);
 		String rev = doc.getString("_rev");
 		
-		String command = generateDatabaseCommand("DELETE","/"+docId+"?rev="+rev);
+		String command = generateDatabaseCommand("DELETE",docId+"?rev="+rev);
 		//System.out.println(command);
 		return doCommand(command);
 	}
@@ -236,7 +236,7 @@ public class CouchdbClient{
 	*/
 	
 	public JSONObject getDoc(String docId) throws Exception{
-		String command = generateDatabaseCommand("GET","/"+docId);
+		String command = generateDatabaseCommand("GET",docId);
 		return doCommand(command);
 	}
 }
