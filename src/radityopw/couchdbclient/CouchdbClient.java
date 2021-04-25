@@ -179,6 +179,33 @@ public class CouchdbClient{
 		String command = generateDatabaseCommand("GET","_partition/"+name+"/_all_docs?"+param);
 		return this.doCommand(command);
 	}
+    
+    
+    /**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan view
+	*@param designDoc nama design document 
+	*@param viewName nama view 
+    *@param param parameter tambahan "include_docs=true&"
+	*@return JSONObject yang merupakan dokumen json 
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/partitioned-dbs/index.html">partition document</a>
+	*/
+    public JSONObject view(String designDoc,String viewName,String param) throws Exception{
+        String command = generateDatabaseCommand("GET","_design/"+designDoc+"/_view/"+viewName+"?"+param);
+        return this.doCommand(command);
+    }
+    
+    /**
+	*mengembalikan JSONObject dari dokumen yang dihasilkan view, dengan parameter default include_docs=true
+	*@param designDoc nama design document 
+	*@param viewName nama view 
+	*@return JSONObject yang merupakan dokumen json 
+	*@throws Exception untuk semua error yang terjadi
+	*@see <a href="https://docs.couchdb.org/en/stable/partitioned-dbs/index.html">partition document</a>
+	*/
+    public JSONObject view(String designDoc,String viewName) throws Exception{
+        return this.view(designDoc,viewName,"include_docs=true");
+    }
 	
 	/**
 	*mengembalikan JSONObject dari dokumen yang dihasilkan 
